@@ -1,0 +1,11 @@
+.About {
+    font-size: 120%;
+    margin: 2em;
+    padding-top: 1em;
+}
+
+.About > h1 {
+    display: block;
+    margin: auto;
+    width: fit-content;
+}
