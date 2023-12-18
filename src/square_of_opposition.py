@@ -1,5 +1,7 @@
-from typing import Hashable, Optional, Dict
+from typing import Optional, Dict, List
 from enum import Enum
+
+from primitives import State, Preposition
 
 
 class Corner:
@@ -37,9 +39,6 @@ class Relation(Enum):
     Contrary = 2,
     Subcontrary = 3,
     Subaltern = 4
-
-
-Preposition = Hashable
 
 
 class SquareOfOpposition:
@@ -80,6 +79,13 @@ class SquareOfOpposition:
                 return self._preposition_from_corner[corner.find_horizontally_opposed()]
             case _:
                 return None
+
+    def to_list_of_states(self, preposition: Preposition = None) -> List[State]:
+        A = preposition if preposition is not None else self.top_left
+        E = self.find_from_relation(A, Relation.Contrary)
+        O = self.find_from_relation(A, Relation.Contradictory)
+        I = self.find_from_relation(A, Relation.Subaltern)
+        return [(A, I), (E, O), (I, O)]
 
 
 class PrepositionNotInSquare(Exception):
