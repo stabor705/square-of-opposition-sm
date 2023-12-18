@@ -7,7 +7,9 @@ export const SpanTreeView: FC<Pick<GraphViewProps, "onNodeSelected">> = (props) 
     const options = {
         layout: {
             hierarchical: {
-                enabled: true
+                enabled: true,
+                nodeSpacing: 200,
+                levelSeparation: 100
             }
         }
     }

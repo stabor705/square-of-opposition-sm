@@ -1,18 +1,18 @@
 from typing import List
 import random
 from itertools import combinations
+from copy import deepcopy
 
 import networkx as nx
 from networkx.drawing.nx_pydot import write_dot
-from pyvis.network import Network
 
-from primitives import State
+from square_of_opposition.primitives import State
+from square_of_opposition.graph import Graph
 
 
-class StateMachine:
+class StateMachine(Graph):
     def __init__(self, states: List[State]):
-        self._graph = nx.DiGraph()
-        # self._graph.add_nodes_from(states)
+        super().__init__()
         self._graph.add_nodes_from([str(state) for state in states])
 
     def create_transition(self, start: State, end: State):
@@ -21,10 +21,3 @@ class StateMachine:
     def add_random_transitions(self, n: int):
         for (start, end) in random.sample(list(combinations(self._graph.nodes(), 2)), n):
             self.create_transition(start, end)
-
-    def draw(self):
-        write_dot(self._graph, "StateMachine")
-        return
-        net = Network(directed=True)
-        net.from_nx(self._graph)
-        net.show("test.html", notebook=False)

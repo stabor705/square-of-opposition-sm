@@ -1,7 +1,7 @@
 from typing import Optional, Dict, List
 from enum import Enum
 
-from primitives import State, Preposition
+from square_of_opposition.primitives import State, Preposition
 
 
 class Corner:
