@@ -13,7 +13,7 @@ class Graph:
 
         def map_to_serialized_node(idx, attribs):
             attrib_names = additional_attribs + Graph.DEFAULT_ATTRIBS
-            serialized_node = { key: str(val) for key, val in attribs.items() if key in attrib_names }
+            serialized_node = { key: val for key, val in attribs.items() if key in attrib_names }
             serialized_node["id"] = idx
             return serialized_node
         

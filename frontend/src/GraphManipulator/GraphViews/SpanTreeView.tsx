@@ -1,9 +1,7 @@
 import React, { FC } from "react";
-import { useSpanTree } from "../../data-access/useSpanTree.ts";
 import { GraphView, GraphViewProps } from "./GraphView.tsx";
 
-export const SpanTreeView: FC<Pick<GraphViewProps, "onNodeSelected">> = (props) => {
-    const spanTree = useSpanTree()
+export const SpanTreeView: FC<Omit<GraphViewProps, "options">> = (props) => {
     const options = {
         layout: {
             hierarchical: {
@@ -13,5 +11,6 @@ export const SpanTreeView: FC<Pick<GraphViewProps, "onNodeSelected">> = (props) 
             }
         }
     }
-    return <GraphView graph={spanTree} options={options} {...props}/>
+
+    return <GraphView options={options} {...props}/>
 }

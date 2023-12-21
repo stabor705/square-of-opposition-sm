@@ -1,6 +1,6 @@
 export interface NodeSelectEvent {
-    nodes: number[]
-    edges: number[]
+    node?: string
+    isLeaf?: boolean
 }
 
 export interface Node {

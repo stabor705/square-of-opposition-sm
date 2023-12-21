@@ -1,34 +1,66 @@
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import Switch from "react-switch";
-import { GraphSelector } from "./GraphViews/GraphSelector.tsx";
 import './GraphManipulator.css';
-import { OperationsView } from "./OperationsView.tsx";
-import { NodeSelectEvent } from "../models/node.ts";
-import { Node } from "./LogicalSquare.tsx";
+import { Graph, NodeSelectEvent } from "../models/node.ts";
+import { expandSpanTree, fetchSpanTree } from "../data-access/spanTreeService.ts";
+import { fetchStateMachine } from "../data-access/stateMachineService.ts";
+import { StateMachineView } from "./GraphViews/StateMachineView.tsx";
+import { SpanTreeView } from "./GraphViews/SpanTreeView.tsx";
+import { LogicalSquare, Square } from "./Controllers/LogicalSquare.tsx";
 
 export const GraphManipulator: FC = () => {
-    const [selectedNode, setSelectedNode] = useState<number | undefined>(undefined);
+    const [selectedNode, setSelectedNode] = useState<string | undefined>(undefined);
+    const [spanTree, setSpanTree] = useState<Graph>({nodes: [], edges: []})
+    const [stateMachine, setStateMachine] = useState<Graph>({nodes: [], edges: []})
     const [mode, setMode] = useState(false)
 
+    useEffect(() => {
+        fetchSpanTree()
+            .then(data => setSpanTree(data))
+        fetchStateMachine()
+            .then(data => setStateMachine(data))
+    }, [])
+
+
     const onNodeSelect = (event: NodeSelectEvent) => {
-        console.log("onNodeSelect")
-        if (event.nodes.length > 0) {
-            setSelectedNode(event.nodes[0]);
-        } else {
-            setSelectedNode(undefined);
-        }
+        setSelectedNode(event.node)
     }
+
+    const onSquareSubmit = (square: Square) => {
+        if (selectedNode === undefined) {
+            return
+        }
+
+        expandSpanTree(square, selectedNode)
+            .then(data => setSpanTree(data))
+        fetchStateMachine()
+            .then(data => setStateMachine(data))
+        setSelectedNode(undefined)
+    }
+
+    const Graph = mode ? StateMachineView : SpanTreeView
+    const graph = mode ? stateMachine : spanTree
+    const Controller = LogicalSquare
+    const emptyState = mode ? (
+        <div className="EmptyState">Select one node after another to create transition between them</div>
+    ) : (
+        <div className="EmptyState">Select a leaf node by clicking on it</div>
+    )
 
     return (
         <div className="GraphManipulator">
             <div className="graph-switch">
                 <h3>Span Tree</h3>
-                <Switch onChange={value => setMode(value)} checked={mode}/>
+                    <Switch onChange={value => setMode(value)} checked={mode}/>
                 <h3>State Machine</h3>
             </div>
             <div className="graph-manipulator-panels">
-                <OperationsView selectedNode={selectedNode}/>
-                <GraphSelector onNodeSelected={onNodeSelect} graphViewSelection={mode}/>
+                <div className="OperationsView">
+                    {(selectedNode !== undefined && !mode) ? <Controller selectedNode={selectedNode} onSubmit={onSquareSubmit}/> : emptyState}
+                </div>
+                <div className="GraphSelector">
+                    <Graph onNodeSelected={onNodeSelect} graph={graph}/>
+                </div>
             </div>
         </div>
     )

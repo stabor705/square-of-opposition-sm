@@ -24,10 +24,19 @@ export const GraphView: FC<GraphViewProps> = (props) => {
         }
         const network = new Network(containerRef.current, graph, options);
         if (onNodeSelected !== undefined) {
-            network.on('select', onNodeSelected)
+            network.on('select', event => {
+                if (event.nodes.length > 0) {
+                    onNodeSelected({
+                        node: graph.nodes[event.nodes[0]].label,
+                        isLeaf: event.edges.length === 1
+                    })
+                } else {
+                    onNodeSelected({})
+                }
+            })
         }
         setNetwork(network);
-    }, [containerRef])
+    }, [containerRef, graph])
 
     useEffect(() => {
         network?.setData(graph)

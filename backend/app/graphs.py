@@ -1,44 +1,49 @@
-from flask import Blueprint, g, jsonify
+from flask import Blueprint, g, jsonify, request
 
 from square_of_opposition.span_tree import SpanTree
 from square_of_opposition.square_of_opposition import SquareOfOpposition
 from square_of_opposition.state_machine import StateMachine
 
-def get_span_tree():
-    if "span_tree" not in g:
-        span_tree = SpanTree()
-        first = SquareOfOpposition(
-            "Taxiing", "Immobilising", "Stop", "~Immobilising")
-        second = SquareOfOpposition("Engine on", "Open", "Engine off", "Steps")
-        third = SquareOfOpposition("Unloading", "Locked", "Empty", "Cleaned")
-        span_tree.expand(first.to_list_of_states())
-        span_tree.expand(second.to_list_of_states())
-        span_tree.expand(third.to_list_of_states())
-        g.span_tree = span_tree
-    return g.span_tree
-
-def get_state_machine():
-    if "state_machine" not in g:
-        span_tree = SpanTree()
-        first = SquareOfOpposition(
-            "Taxiing", "Immobilising", "Stop", "~Immobilising")
-        second = SquareOfOpposition("Engine on", "Open", "Engine off", "Steps")
-        third = SquareOfOpposition("Unloading", "Locked", "Empty", "Cleaned")
-        span_tree.expand(first.to_list_of_states())
-        span_tree.expand(second.to_list_of_states())
-        span_tree.expand(third.to_list_of_states())
-        state_machine = StateMachine(span_tree.get_leaf_states())
-        state_machine.add_random_transitions(8)
-        g.state_machine = state_machine
-    return g.state_machine
-
+span_tree = SpanTree()
+state_machine = StateMachine(span_tree.get_leaf_states())
 
 bp = Blueprint('graphs', __name__)
 
 @bp.get('/span_tree')
 def get_span_tree_endpoint():
-    return jsonify(get_span_tree().serialize())
+    return jsonify(span_tree.serialize())
 
 @bp.get('/state_machine')
 def get_state_machine_endpoint():
-    return jsonify(get_state_machine().serialize())
+    return jsonify(state_machine.serialize())
+
+@bp.patch('/span_tree')
+def patch_span_tree_endpoint():
+    global state_machine
+
+    data = request.get_json()
+
+    # TODO: validation
+
+    square_data = data["square"]
+    square = SquareOfOpposition(
+        square_data["top_left"],
+        square_data["top_right"],
+        square_data["bot_right"],
+        square_data["bot_left"]
+    )
+    leaf = data["leaf"]
+
+    span_tree.expand(square.to_list_of_states(), leaf)
+    state_machine = StateMachine(span_tree.get_leaf_states())
+    return jsonify(span_tree.serialize())
+
+@bp.patch('/state_machine')
+def patch_state_machine_endpoint():
+    data = request.get_json()
+
+    start_node = data["from"]
+    end_node = data["to"]
+
+    state_machine.create_transition(start_node, end_node)
+    return jsonify(state_machine.serialize())

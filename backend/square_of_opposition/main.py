@@ -18,6 +18,7 @@ def get_example_span_tree():
 
 if __name__ == "__main__":
     span_tree = get_example_span_tree()
+    print(span_tree.serialize())
     state_machine = StateMachine(span_tree.get_leaf_states())
     state_machine.add_random_transitions(8)
     
