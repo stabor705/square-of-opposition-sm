@@ -51,7 +51,7 @@ export const LogicalSquare: FC<LogicalSquareProps> = (props) => {
                 <div className="relation">subcontrary</div>
             </div>
             <div className="buttons-panel">
-                <button className="submit-button" onClick={() => {
+                <button className="primary-button" onClick={() => {
                     if (validate()) {
                         props.onSubmit({
                             top_left: topLeft,

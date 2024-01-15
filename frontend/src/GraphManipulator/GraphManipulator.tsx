@@ -7,6 +7,7 @@ import { fetchStateMachine } from "../data-access/stateMachineService.ts";
 import { StateMachineView } from "./GraphViews/StateMachineView.tsx";
 import { SpanTreeView } from "./GraphViews/SpanTreeView.tsx";
 import { LogicalSquare, Square } from "./Controllers/LogicalSquare.tsx";
+import { StateMachineController } from "./Controllers/StateMachineController.tsx";
 
 export const GraphManipulator: FC = () => {
     const [selectedNode, setSelectedNode] = useState<string | undefined>(undefined);
@@ -40,9 +41,9 @@ export const GraphManipulator: FC = () => {
 
     const Graph = mode ? StateMachineView : SpanTreeView
     const graph = mode ? stateMachine : spanTree
-    const Controller = LogicalSquare
+    const Controller = mode ? StateMachineController : LogicalSquare
     const emptyState = mode ? (
-        <div className="EmptyState">Select one node after another to create transition between them</div>
+        <div className="EmptyState">Select state</div>
     ) : (
         <div className="EmptyState">Select a leaf node by clicking on it</div>
     )
@@ -56,7 +57,7 @@ export const GraphManipulator: FC = () => {
             </div>
             <div className="graph-manipulator-panels">
                 <div className="OperationsView">
-                    {(selectedNode !== undefined && !mode) ? <Controller selectedNode={selectedNode} onSubmit={onSquareSubmit}/> : emptyState}
+                    {(selectedNode !== undefined) ? <Controller selectedNode={selectedNode} onSubmit={onSquareSubmit}/> : emptyState}
                 </div>
                 <div className="GraphSelector">
                     <Graph onNodeSelected={onNodeSelect} graph={graph}/>

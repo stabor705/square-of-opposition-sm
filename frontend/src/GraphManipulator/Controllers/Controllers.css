@@ -102,13 +102,47 @@
     padding-top: 1em;
 }
 
-.submit-button {
+.primary-button {
     border: 1px solid black;
     background-color: white;
     border-radius: 5px;
     padding: 0.5em;
 }
 
-.submit-button:hover {
+.primary-button:hover {
     cursor: pointer;
+}
+
+.state-machine-controller {
+    display: flex;
+    justify-content: space-between;
+    height: 100%;
+    width: 100%;
+}
+
+.variables-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+}
+
+.variables-panel input[type="text"] {
+    padding: 0.3em;
+}
+
+.variable-list-item {
+    display: flex;
+    gap: 0.3em;
+    align-items: center;
+}
+
+.transition-add-panel {
+    display: flex;
+    gap: 0.5em;
+    align-items: center;
+}
+
+.transition-list-item {
+    display: flex;
+    gap: 0.5em;
 }
