@@ -13,6 +13,12 @@ const elementRemoved = <T,>(arr: Array<T>, idx: number): Array<T> => {
     return arr.filter((_, i) => i !== idx)
 }
 
+export interface VariablesPanelProps {
+    variables: Map<string, number>
+    onVariableSet: (key: string, value: number) => void
+    onVariableRemoved: (key: string) => void
+}
+
 const VariablesPanel: FC = () => {
     const [variableNames, setVariableNames] = useState<Array<string>>([])
     const [variableValues, setVariableValues] = useState<Array<number>>([])
@@ -58,9 +64,14 @@ const VariablesPanel: FC = () => {
     )
 }
 
-export const TransitionsPanel: FC = () => {
+export interface TransitionsPanelProps {
+    availableTransitions: string[]
+    onTransitionAdded: (to: string) => void
+}
+
+export const TransitionsPanel: FC<TransitionsPanelProps> = (props) => {
     const [transitions, setTransitions] = useState<Array<string>>([])
-    const [newTransition, setNewTransition] = useState<string>("A")
+    const [newTransition, setNewTransition] = useState<string>(props.availableTransitions[0])
     
     return (
         <div>
@@ -82,12 +93,12 @@ export const TransitionsPanel: FC = () => {
                 <select name="transition" id="transition-select" onChange={e => {
                     setNewTransition(e.target.value)
                 }}>
-                    <option value="A">A</option>
-                    <option value="B">B</option>
-                    <option value="C">C</option>
+                    {props.availableTransitions.map(transition => (
+                        <option value={transition} key={transition}>{transition}</option>
+                    ))}
                 </select>
                 <button className="primary-button" onClick={() => {
-                    setTransitions(transitions.concat(newTransition))
+                    props.onTransitionAdded(props.selectedNode, newTransition)
                 }}>
                     Add transition
                 </button>
@@ -96,11 +107,13 @@ export const TransitionsPanel: FC = () => {
     )
 }
 
-export const StateMachineController: FC = () => {
+export type StateMachineControllerProps = TransitionsPanelProps & VariablesPanelProps
+
+export const StateMachineController: FC<StateMachineControllerProps> = (props) => {
     return (
         <div className="state-machine-controller">
             <VariablesPanel/>
-            <TransitionsPanel/>
+            <TransitionsPanel availableTransitions={props.availableTransitions} onTransitionAdded={props.onTransitionAdded}/>
         </div>
     )
 }

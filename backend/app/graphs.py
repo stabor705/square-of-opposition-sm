@@ -47,3 +47,18 @@ def patch_state_machine_endpoint():
 
     state_machine.create_transition(start_node, end_node)
     return jsonify(state_machine.serialize())
+
+@bp.delete('/state_machine/<state>/variables/<variable>')
+def delete_variable(state, variable):
+    state_machine.del_variable(state, variable)
+    return jsonify(state_machine.serialize())
+
+@bp.post('/state_machine/<state>/variables')
+def set_variable(state):
+    data = request.get_json()
+
+    key = data["key"]
+    value = data["value"]
+
+    state_machine.set_variable(state, key, value)
+    return jsonify(state_machine.serialize())

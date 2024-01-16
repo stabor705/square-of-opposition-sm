@@ -3,7 +3,7 @@ import Switch from "react-switch";
 import './GraphManipulator.css';
 import { Graph, NodeSelectEvent } from "../models/node.ts";
 import { expandSpanTree, fetchSpanTree } from "../data-access/spanTreeService.ts";
-import { fetchStateMachine } from "../data-access/stateMachineService.ts";
+import { createStateMachineTransition, deleteStateMachineVariable, fetchStateMachine, setStateMachineVariable } from "../data-access/stateMachineService.ts";
 import { StateMachineView } from "./GraphViews/StateMachineView.tsx";
 import { SpanTreeView } from "./GraphViews/SpanTreeView.tsx";
 import { LogicalSquare, Square } from "./Controllers/LogicalSquare.tsx";
@@ -39,6 +39,40 @@ export const GraphManipulator: FC = () => {
         setSelectedNode(undefined)
     }
 
+    const onTransitionAdded = (to: string) => {
+        if (selectedNode === undefined) {
+            return
+        }
+
+        createStateMachineTransition(selectedNode, to)
+            .then(setStateMachine)
+            .catch(console.error)
+    }
+
+    const onTransitionRemoved = (from: string, to: string) => {
+
+    }
+
+    const onVariableSet = (key: string, value: number) => {
+        if (selectedNode === undefined) {
+            return
+        }
+
+        setStateMachineVariable(selectedNode, key, value)
+            .then(setStateMachine)
+            .catch(console.error)
+    }
+
+    const onVariableRemoved = (key: string) => {
+        if (selectedNode === undefined) {
+            return
+        }
+
+        deleteStateMachineVariable(selectedNode, key)
+            .then(setStateMachine)
+            .catch(console.error)
+    }
+
     const Graph = mode ? StateMachineView : SpanTreeView
     const graph = mode ? stateMachine : spanTree
     const Controller = mode ? StateMachineController : LogicalSquare
@@ -47,6 +81,17 @@ export const GraphManipulator: FC = () => {
     ) : (
         <div className="EmptyState">Select a leaf node by clicking on it</div>
     )
+    const selectedNodeIdx = stateMachine.nodes.findIndex(node => node.label === selectedNode)
+    const availableTransitions = stateMachine.nodes
+        .filter(node => (
+            stateMachine.edges
+                .find(edge => (
+                    edge.from === selectedNodeIdx && edge.to === node.id
+                )) === undefined
+            )
+        )
+        .map(node => node.label)
+    console.log(availableTransitions)
 
     return (
         <div className="GraphManipulator">
@@ -57,7 +102,14 @@ export const GraphManipulator: FC = () => {
             </div>
             <div className="graph-manipulator-panels">
                 <div className="OperationsView">
-                    {(selectedNode !== undefined) ? <Controller selectedNode={selectedNode} onSubmit={onSquareSubmit}/> : emptyState}
+                    {(selectedNode !== undefined)
+                        ? (
+                            mode
+                            ? <StateMachineController selectedNode={selectedNode} availableTransitions={availableTransitions} onTransitionAdded={onTransitionAdded}/>
+                            : <LogicalSquare selectedNode={selectedNode} onSubmit={onSquareSubmit}/>
+                        )
+                        : emptyState
+                    }
                 </div>
                 <div className="GraphSelector">
                     <Graph onNodeSelected={onNodeSelect} graph={graph}/>
