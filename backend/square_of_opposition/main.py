@@ -21,4 +21,6 @@ if __name__ == "__main__":
     print(span_tree.serialize())
     state_machine = StateMachine(span_tree.get_leaf_states())
     state_machine.add_random_transitions(8)
+    with open('out.py', 'w') as fp:
+        fp.write(state_machine.generate_code())
     

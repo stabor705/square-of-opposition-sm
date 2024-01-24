@@ -1,5 +1,5 @@
 import { Graph } from "./node";
 
 export interface StateMachine extends Graph {
-    variables: Array<Map<String, number>>
+    variables: Array<Map<string, number>>
 }

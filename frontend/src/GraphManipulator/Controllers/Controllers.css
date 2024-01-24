@@ -118,6 +118,7 @@
     justify-content: space-between;
     height: 100%;
     width: 100%;
+    gap: 5%;
 }
 
 .variables-panel {
@@ -128,6 +129,7 @@
 
 .variables-panel input[type="text"] {
     padding: 0.3em;
+    width: 50%;
 }
 
 .variable-list-item {
@@ -145,4 +147,27 @@
 .transition-list-item {
     display: flex;
     gap: 0.5em;
+}
+
+.variable-add {
+    display: flex;
+    gap: 0.5em;
+    align-items: center;
+}
+
+.variables-list-item {
+    display: flex;
+    gap: 0.5em;
+    align-items: center;
+}
+
+.remove-button {
+    background-color: red;
+    color: white;
+    border-radius: 5em;
+    border: none;
+}
+
+.remove-button:hover {
+    cursor: pointer;
 }

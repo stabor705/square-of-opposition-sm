@@ -85,7 +85,7 @@ class SquareOfOpposition:
         E = self.find_from_relation(A, Relation.Contrary)
         O = self.find_from_relation(A, Relation.Contradictory)
         I = self.find_from_relation(A, Relation.Subaltern)
-        return list(map(lambda state: str(state), [(A, I), (E, O), (I, O)]))
+        return [(A, I), (E, O), (I, O)]
 
 
 class PrepositionNotInSquare(Exception):

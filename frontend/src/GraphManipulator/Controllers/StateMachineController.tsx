@@ -1,95 +1,93 @@
 import React, { FC, useState } from "react";
 
-const updated = <T,>(arr: Array<T>, newValue: T, idx: number): Array<T> => {
-    return arr.map((value, i) => {
-        if (i === idx) {
-            return newValue
-        } 
-        return value
-    })
-}
-
-const elementRemoved = <T,>(arr: Array<T>, idx: number): Array<T> => {
-    return arr.filter((_, i) => i !== idx)
-}
-
 export interface VariablesPanelProps {
     variables: Map<string, number>
     onVariableSet: (key: string, value: number) => void
     onVariableRemoved: (key: string) => void
 }
 
-const VariablesPanel: FC = () => {
-    const [variableNames, setVariableNames] = useState<Array<string>>([])
-    const [variableValues, setVariableValues] = useState<Array<number>>([])
+const VariablesPanel: FC<VariablesPanelProps> = (props) => {
+    const [key, setKey] = useState("")
+    const [value, setValue] = useState("")
 
-    const addVariable = () => {
-        if (variableNames.includes("")) {
-            return
+    const validateVariable = (key: string, value: string): boolean => {
+        if (key.length === 0 || value.length === 0) {
+            return false
         }
-        setVariableNames(variableNames.concat(""))
-        setVariableValues(variableValues.concat(0))
-        console.log(variableNames)
-        console.log(variableValues)
+        const decimalRegex = /^\d+(\.\d+)?$/
+        if (!decimalRegex.test(value)) {
+            return false
+        }
+        return true
     }
 
+    const addVariable = () => {
+        if (!validateVariable(key, value)) {
+            console.error(`Variable ${key}: ${value} is invalid!`)
+            return
+        }
+
+        props.onVariableSet(key, parseFloat(value))
+        setKey("")
+        setValue("")
+    }
 
     return (
         <div className="variables-panel">
             <h3>Variables</h3>
-            {variableNames.map((name, idx) => (
-                <div key={`variable-list-item-${idx}`} className="variable-list-item">
-                    <input type="text" value={name} onChange={e => {
-                        if (e.target.value === "") {
-                            return
-                        }
-                        setVariableNames(updated(variableNames, e.target.value, idx))
-                    }}/>
-                    <span>-</span>
-                    <input type="text" value={variableValues[idx]} onChange={e => {
-                        setVariableValues(updated(variableValues, parseFloat(e.target.value), idx))
-                    }}/>
-                    <button className="button" onClick={() => {
-                        setVariableNames(elementRemoved(variableNames, idx))
-                        setVariableValues(elementRemoved(variableValues, idx))
-                    }}>
-                        -
-                    </button>
-                </div>
+            {[...props.variables.entries()].map(([key, value]) => (
+                <ul>
+                    <li key={key} className="variables-list-item">
+                        <span>{key}={value}</span>
+                        <button
+                            className="remove-button"
+                            onClick={() => props.onVariableRemoved(key)}
+                        >
+                            -
+                        </button>
+                    </li>
+                </ul>
             ))}
-            <button onClick={addVariable} className="primary-button">
-                Add variable
-            </button>
+            <div className="variable-add">
+                <input type="text" onChange={e => setKey(e.target.value)} value={key}/>
+                <span>-</span>
+                <input type="text" onChange={e => setValue(e.target.value)} value={value}/>
+                <button className="primary-button" onClick={addVariable}>
+                    Add variable
+                </button>
+            </div>
         </div>
     )
 }
 
 export interface TransitionsPanelProps {
     availableTransitions: string[]
+    transitions: string[]
     onTransitionAdded: (to: string) => void
+    onTransitionRemoved: (to: string) => void
 }
 
 export const TransitionsPanel: FC<TransitionsPanelProps> = (props) => {
-    const [transitions, setTransitions] = useState<Array<string>>([])
     const [newTransition, setNewTransition] = useState<string>(props.availableTransitions[0])
     
     return (
         <div>
             <h3>Transitions</h3>
-            {transitions.map((transition, idx) => (
+            {props.transitions.map((transition, idx) => (
                 <ul key={`transition-list-item-${idx}`}>
                     <li className="transition-list-item">
-                        <span>Transitions to {transition}</span>
-                        <button onClick={() => {
-                            setTransitions(elementRemoved(transitions, idx))
-                        }}>
+                        <span>Transition to {transition}</span>
+                        <button
+                            className="remove-button"
+                            onClick={() => props.onTransitionRemoved(transition)}
+                        >
                             -
                         </button>
                     </li>
                 </ul>
             ))}
             <div className="transition-add-panel">
-                <span>Transition to</span>
+                <span>To</span>
                 <select name="transition" id="transition-select" onChange={e => {
                     setNewTransition(e.target.value)
                 }}>
@@ -98,7 +96,7 @@ export const TransitionsPanel: FC<TransitionsPanelProps> = (props) => {
                     ))}
                 </select>
                 <button className="primary-button" onClick={() => {
-                    props.onTransitionAdded(props.selectedNode, newTransition)
+                    props.onTransitionAdded(newTransition)
                 }}>
                     Add transition
                 </button>
@@ -112,8 +110,8 @@ export type StateMachineControllerProps = TransitionsPanelProps & VariablesPanel
 export const StateMachineController: FC<StateMachineControllerProps> = (props) => {
     return (
         <div className="state-machine-controller">
-            <VariablesPanel/>
-            <TransitionsPanel availableTransitions={props.availableTransitions} onTransitionAdded={props.onTransitionAdded}/>
+            <VariablesPanel variables={props.variables} onVariableSet={props.onVariableSet} onVariableRemoved={props.onVariableRemoved}/>
+            <TransitionsPanel availableTransitions={props.availableTransitions} onTransitionAdded={props.onTransitionAdded} transitions={props.transitions} onTransitionRemoved={props.onTransitionRemoved}/>
         </div>
     )
 }

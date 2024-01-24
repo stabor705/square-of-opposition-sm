@@ -32,7 +32,8 @@ def patch_span_tree_endpoint():
         square_data["bot_right"],
         square_data["bot_left"]
     )
-    leaf = data["leaf"]
+    leaf_label = data["leaf"]
+    leaf = span_tree.get_node_with_label(leaf_label)
 
     span_tree.expand(square.to_list_of_states(), leaf)
     state_machine = StateMachine(span_tree.get_leaf_states())
@@ -42,19 +43,30 @@ def patch_span_tree_endpoint():
 def patch_state_machine_endpoint():
     data = request.get_json()
 
-    start_node = data["from"]
-    end_node = data["to"]
+    start_node_label = data["from"]
+    end_node_label = data["to"]
+    start_node = state_machine.get_node_with_label(start_node_label)
+    end_node = state_machine.get_node_with_label(end_node_label)
 
     state_machine.create_transition(start_node, end_node)
     return jsonify(state_machine.serialize())
 
-@bp.delete('/state_machine/<state>/variables/<variable>')
-def delete_variable(state, variable):
+@bp.delete('/state_machine/transitions/<u_str>/<v_str>')
+def delete_transition(u_str, v_str):
+    u = state_machine.get_node_with_label(u_str)
+    v = state_machine.get_node_with_label(v_str)
+    state_machine.remove_transition(u, v)
+    return jsonify(state_machine.serialize())
+
+@bp.delete('/state_machine/<state_str>/variables/<variable>')
+def delete_variable(state_str, variable):
+    state = state_machine.get_node_with_label(state_str)
     state_machine.del_variable(state, variable)
     return jsonify(state_machine.serialize())
 
-@bp.post('/state_machine/<state>/variables')
-def set_variable(state):
+@bp.post('/state_machine/<state_str>/variables')
+def set_variable(state_str):
+    state = state_machine.get_node_with_label(state_str)
     data = request.get_json()
 
     key = data["key"]
@@ -62,3 +74,7 @@ def set_variable(state):
 
     state_machine.set_variable(state, key, value)
     return jsonify(state_machine.serialize())
+
+@bp.get('/code')
+def get_code():
+    return state_machine.generate_code()

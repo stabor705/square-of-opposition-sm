@@ -18,7 +18,7 @@ class SpanTree(Graph):
 
         self.expantion_nodes = [SpanTree.INITIAL_NODE]
         self._depth = 0
-        self._graph.add_node(self.expantion_nodes[0], level=self._depth)
+        self._graph.add_node(self.expantion_nodes[0], level=self._depth, label=str(self.expantion_nodes[0]))
 
     def expand(self, new_states: List[State], expanded_leaf: State = None):
         # TODO: check if leaf is correct
@@ -29,7 +29,7 @@ class SpanTree(Graph):
         self.expantion_nodes = new_states
         self._depth += 1
         for new_state in new_states:
-            self._graph.add_node(new_state, level=self._depth)
+            self._graph.add_node(new_state, level=self._depth, label=str(new_state))
         self._graph.add_edges_from([(expanded_leaf, new_state)
                                   for new_state in new_states])
 
