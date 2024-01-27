@@ -147,6 +147,7 @@
 .transition-list-item {
     display: flex;
     gap: 0.5em;
+    align-items: center;
 }
 
 .variable-add {

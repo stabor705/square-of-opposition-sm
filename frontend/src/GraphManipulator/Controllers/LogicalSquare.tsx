@@ -33,8 +33,8 @@ export const LogicalSquare: FC<LogicalSquareProps> = (props) => {
             <div className="inputs">
                 <input type="text" onChange={e => setTopLeft(e.target.value)}/>
                 <input type="text" onChange={e => setTopRight(e.target.value)}/>
-                <input type="text" onChange={e => setBottomRight(e.target.value)}/>
                 <input type="text" onChange={e => setBottomLeft(e.target.value)}/>
+                <input type="text" onChange={e => setBottomRight(e.target.value)}/>
             </div>
             <img src="square.svg" className="square"/>
             <div className="relations">
